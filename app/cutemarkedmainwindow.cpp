@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "cutemarkedmainwindow.h"
+#include "ui_cutemarkedmainwindow.h"
 
 #include <QClipboard>
 #include <QDesktopServices>
@@ -554,7 +554,7 @@ void MainWindow::applyCurrentTheme()
 
     // get resource or file name from url
     QString cssFileName;
-    if (cssUrl.scheme() == "qrc") {
+    if (cssUrl.scheme() == QLatin1String("qrc")) {
         cssFileName = cssUrl.toString().remove(0, 3);
     } else {
         cssFileName = cssUrl.toLocalFile();

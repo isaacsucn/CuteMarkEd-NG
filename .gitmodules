@@ -1,12 +1,9 @@
-[submodule "3rdparty/discount"]
-	path = 3rdparty/discount
-	url = https://github.com/cloose/discount.git
-[submodule "3rdparty/hunspell"]
-	path = 3rdparty/hunspell
-	url = https://github.com/cloose/hunspell-mingw.git
 [submodule "3rdparty/qmarkdowntextedit"]
 	path = 3rdparty/qmarkdowntextedit
 	url = https://github.com/pbek/qmarkdowntextedit
 [submodule "3rdparty/md4c"]
 	path = 3rdparty/md4c
 	url = https://github.com/mity/md4c
+[submodule "3rdparty/hunspell/hunspell"]
+	path = 3rdparty/hunspell/hunspell
+	url = https://github.com/hunspell/hunspell.git

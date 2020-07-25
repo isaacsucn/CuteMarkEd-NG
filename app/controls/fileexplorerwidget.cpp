@@ -1,10 +1,11 @@
 #include "fileexplorerwidget.h"
 #include "ui_fileexplorerwidget.h"
 
-#include <QFileSystemModel>
-#include <QSortFilterProxyModel>
-#include <QSettings>
 #include <QDebug>
+#include <QFileSystemModel>
+#include <QMenu>
+#include <QSettings>
+#include <QSortFilterProxyModel>
 
 class FileSortFilterProxyModel : public QSortFilterProxyModel
 {
@@ -14,7 +15,7 @@ public:
 protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const
     {
-        QFileSystemModel *model = static_cast<QFileSystemModel*>(this->sourceModel());
+        QFileSystemModel* model = static_cast<QFileSystemModel*>(this->sourceModel());
 
         QFileInfo leftInfo  = model->fileInfo(left);
         QFileInfo rightInfo = model->fileInfo(right);
@@ -35,6 +36,15 @@ FileExplorerWidget::FileExplorerWidget(QWidget *parent) :
     sortModel(new FileSortFilterProxyModel(this))
 {
     ui->setupUi(this);
+
+    //only show .md and .txt files
+    model->setNameFilters({ "*.txt", "*.md" });
+    model->setNameFilterDisables(false);
+
+    ui->fileTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->fileTreeView, &QTreeView::customContextMenuRequested,
+        this, &FileExplorerWidget::oncustomContextMenuRequested);
+    connect(ui->fileTreeView, &QTreeView::doubleClicked, this, &FileExplorerWidget::onDoubleClick);
 
     sortModel->setDynamicSortFilter(true);
     sortModel->setSourceModel(model);
@@ -61,8 +71,8 @@ FileExplorerWidget::~FileExplorerWidget()
 void FileExplorerWidget::showEvent(QShowEvent *event)
 {
     if (!initialized) {
-        model->setRootPath(QLatin1String(""));
         QSettings settings;
+        model->setRootPath("");
         QString path = settings.value(QStringLiteral("General/explorerPath"), QDir::homePath()).toString();
         setPath(path);
         initialized = true;
@@ -82,5 +92,23 @@ void FileExplorerWidget::fileOpen(const QModelIndex &index)
         const QString filePath = info.filePath();
 
         emit fileSelected(filePath);
+    }
+}
+
+void FileExplorerWidget::onDoubleClick(const QModelIndex& index)
+{
+    if (model->isDir(index)) {
+        ui->fileTreeView->setRootIndex(index);
+    }
+}
+
+void FileExplorerWidget::oncustomContextMenuRequested(const QPoint p)
+{
+    QMenu menu(this);
+    auto goUp = menu.addAction(tr("Go up"));
+
+    auto execAction = menu.exec(mapToGlobal(p));
+    if (execAction == goUp) {
+        ui->fileTreeView->setRootIndex(ui->fileTreeView->rootIndex().parent());
     }
 }

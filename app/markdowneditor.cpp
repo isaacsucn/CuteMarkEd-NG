@@ -144,17 +144,15 @@ void MarkdownEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 
 int MarkdownEditor::lineNumberAreaWidth()
 {
-    int digits = 2;
-    int max = qMax(1, blockCount());
+    int digits = 3;
+    int max = std::max(1, blockCount());
     while (max >= 100) {
         max /= 10;
         ++digits;
     }
 
     QFont font = lineNumberArea->font();
-    const QFontMetrics linefmt(font);
-    int space = linefmt.horizontalAdvance(QLatin1Char('9')) * digits;
-
+    const int space = QFontMetrics(font).horizontalAdvance(QLatin1Char('9')) * digits;
     return space;
 }
 
@@ -223,7 +221,7 @@ bool MarkdownEditor::canInsertFromMimeData(const QMimeData *source) const
 void MarkdownEditor::insertFromMimeData(const QMimeData *source)
 {
     if (isUrlToLocalFile(source)) {
-        emit loadDroppedFile(source->urls().first().toLocalFile());
+        emit loadDroppedFile(source->urls().constFirst().toLocalFile());
     } else {
         QPlainTextEdit::insertFromMimeData(source);
     }
@@ -366,7 +364,7 @@ void MarkdownEditor::addWordToUserWordlist()
 
 bool MarkdownEditor::isUrlToLocalFile(const QMimeData *source) const
 {
-    return source->hasUrls() && (source->urls().count() == 1) && source->urls().first().isLocalFile();
+    return source->hasUrls() && (source->urls().count() == 1) && source->urls().constFirst().isLocalFile();
 }
 
 void MarkdownEditor::loadStyleFromStylesheet(const QString &fileName)
@@ -439,10 +437,10 @@ void MarkdownEditor::loadGithubStyle() {
     highlighter->setTextFormat(MarkdownHighlighter::HighlighterState::BlockQuote, format);
 
     format = QTextCharFormat();
-    format.setBackground(QColor("#f8f8f8"));
     format.setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    highlighter->setTextFormat(MarkdownHighlighter::HighlighterState::InlineCodeBlock, format);
     highlighter->setTextFormat(MarkdownHighlighter::HighlighterState::CodeBlock, format);
+    format.setBackground(QColor("#f8f8f8"));
+    highlighter->setTextFormat(MarkdownHighlighter::HighlighterState::InlineCodeBlock, format);
 
     /****************************************
      * Formats for syntax highlighting
